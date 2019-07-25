@@ -1,11 +1,11 @@
 # Azure Virtual Machine Powershell Script
 
-Automates Azure virtual machine creation with Powershell. Make sure you have a subscription set up before following the below steps. 
+Automates Azure virtual machine creation with Powershell. Make sure you have a subscription and Azure account set up before following the below steps. 
 
 ## Installation
 
 1. Make sure you have Git installed. 
-2. Clone repository with `git clone`
+2. Clone repository with `git clone https://github.com/OpticGenius/AzureVMCreate.git`
 3. [Install Azure PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.4.0)
 
 ## Configuration
@@ -45,12 +45,10 @@ You can have a look at the [Windows Virtual Machines Documentation](https://docs
 
 ## Running Script
 
-    PS C:\PATH> .\vmcreate.ps1 
+Run `vmcreate.ps1` inside your direcory
+
+    PS PATH> .\vmcreate.ps1 
 
 Where **PATH** is your local path to the cloned repo. 
 
 Observe your azure portal and wait for your virtual machines to get created. 
-
-
-
-

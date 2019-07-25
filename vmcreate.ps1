@@ -1,12 +1,18 @@
 # Suppress script warnings
 Set-Item Env:\SuppressAzurePowerShellBreakingChangeWarnings "true"
 
-# Login to Azure account
-Write-Output "Pulling Azure account credentials..."
-Login-AzAccount
+# Ensure configuration file is present
+if (!(Test-Path .\config.json)) {
+    Write-Output "config.json is not present. Please add it to your directory before proceeding..."
+    exit
+}
 
 # Extract JSON config data
 $config = Get-Content .\config.json | ConvertFrom-Json
+
+# Login to Azure account
+Write-Output "Pulling Azure account credentials..."
+Login-AzAccount
 
 # Check if resource group has already been added
 Get-AzResourceGroup `
@@ -16,12 +22,12 @@ Get-AzResourceGroup `
 
 if ($notPresent)
 {
-    Write-Output "Creating " $config.resourceGroup "..."
+    Write-Output ("Creating " + $config.resourceGroup + " resource group...")
     New-AzResourceGroup `
         -Name $config.resourceGroup `
         -Location $config.location
 } else {
-    Write-Output "Resource group " $config.resourceGroup " already exists..."
+    Write-Output ("Resource group " + $config.resourceGroup + " already exists...")
 }
 
 # Create a subnet configuration
@@ -31,7 +37,7 @@ $subnetConfig = New-AzVirtualNetworkSubnetConfig `
                     -AddressPrefix 192.168.1.0/24
 
 # Create a virtual network
-Write-Output "Creating virtual network..."
+Write-Output ("Creating " + $config.virtualNetworkName + " virtual network...")
 $vnet = New-AzVirtualNetwork `
                 -ResourceGroupName $config.resourceGroup `
                 -Location $config.location `
@@ -53,7 +59,7 @@ $nsgRuleRDP = New-AzNetworkSecurityRuleConfig `
                     -Access Allow
 
 # Create a network security group
-Write-Output "Creating " $config.networkSecurityGroupName " network security group..."
+Write-Output ("Creating " + $config.networkSecurityGroupName + " network security group...")
 $nsg = New-AzNetworkSecurityGroup `
             -ResourceGroupName $config.resourceGroup `
             -Location $config.location `
@@ -64,6 +70,7 @@ $nsg = New-AzNetworkSecurityGroup `
 Write-Output "Pulling virtual machine credentials..."
 $cred = Get-Credential -Message "Enter a username and password for the virtual machiness."
 
+# Create each virtual machine
 foreach ($vm in $config.vms) {
 
     # Create a public IP address and specify a DNS name
@@ -86,17 +93,18 @@ foreach ($vm in $config.vms) {
                 -NetworkSecurityGroupId $nsg.Id
 
     # Create a virtual machine configuration
-    Write-Output "Creating virtual machine configuration..."
+    Write-Output ("Creating " + $vm.name + " virtual machine configuration...")
     $vmConfig = New-AzVMConfig -VMName $vm.name -VMSize $vm.size | `
                 Set-AzVMOperatingSystem -Windows -ComputerName $vm.name -Credential $cred | `
                 Set-AzVMSourceImage -PublisherName $vm.publisherName -Offer $vm.offer -Skus $vm.skus -Version latest | `
                 Add-AzVMNetworkInterface -Id $nic.Id
 
     # Create a virtual machine
-    Write-Output "Creating virtual machine..."
+    Write-Output ("Creating " + $vm.name + " virtual machine...")
     New-AzVM `
         -ResourceGroupName $config.resourceGroup `
         -Location $config.location `
         -VM $vmConfig `
-        -Verbose
+        -Verbose `
+        -AsJob
 }
