@@ -3,12 +3,17 @@ Set-Item Env:\SuppressAzurePowerShellBreakingChangeWarnings "true"
 
 # Ensure configuration file is present
 if (!(Test-Path .\config.json)) {
-    Write-Output "config.json is not present. Please add it to your directory before proceeding..."
+    Write-Error "config.json is not present. Please add it to your directory before proceeding..."
     exit
 }
 
 # Extract JSON config data
-$config = Get-Content .\config.json | ConvertFrom-Json
+try {
+    $config = Get-Content .\config.json | ConvertFrom-Json
+} catch {
+    Write-Error "Cannot parse config.json file. Make sure JSON format is correct..."
+    exit
+}
 
 # Login to Azure account
 Write-Output "Pulling Azure account credentials..."
