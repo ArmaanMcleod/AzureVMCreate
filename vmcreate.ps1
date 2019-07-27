@@ -90,7 +90,7 @@ foreach ($vm in $config.vms) {
     # Create a virtual network card and associate with public IP address and NSG
     Write-Output "Creating virtual network card and associating with public IP address and Network Security Group..."
     $nic = New-AzNetworkInterface `
-                -Name ($config.virtualNetworkName + $vm.name) `
+                -Name $vm.networkInterfaceName `
                 -ResourceGroupName $config.resourceGroup `
                 -Location $config.location `
                 -SubnetId $vnet.Subnets[0].Id `

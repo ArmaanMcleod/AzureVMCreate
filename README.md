@@ -26,14 +26,16 @@ Create a `config.json` file in the same folder as the `vmcreate.ps1` script, and
             "size": "Standard_D1",
             "publisherName": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "skus": "2016-Datacenter"
+            "skus": "2016-Datacenter",
+            "networkInterfaceName": "myNetworkInterface1"
         },
         {
             "name": "server2",
             "size": "Standard_D1",
             "publisherName": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "skus": "2019-Datacenter"
+            "skus": "2019-Datacenter",
+            "networkInterfaceName": "myNetworkInterface2"
         }
     ]
 }
